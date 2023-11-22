@@ -32,15 +32,27 @@ def all_numbers() -> set[int]:
 
 
 ##
+
+def square_indices_to_grid_indices(square_row_idx: int, square_col_idx: int) \
+        -> tuple[tuple[int, int], tuple[int, int]]:
+    row_start = square_row_idx * 3
+    row_end = row_start + 3
+
+    col_start = square_col_idx * 3
+    col_end = col_start + 3
+
+    return (row_start, row_end), (col_start, col_end)
+
+
 def square_idx_to_grid_indices(square_idx: int) -> tuple[tuple[int, int], tuple[int, int]]:
     square_row_idx = square_idx // 3
     square_col_idx = square_idx % 3
 
-    return indices_square_to_grid(square_row_idx, square_col_idx)
+    return square_indices_to_grid_indices(square_row_idx, square_col_idx)
 
 
 def pos_to_square_idx(pos: tuple[int, int]) -> int:
-    return pos[0] * 3 + pos[1]
+    return pos[0] // 3 * 3 + pos[1] // 3
 
 
 def get_row(grid: np.ndarray, row_idx: int) -> np.ndarray:
@@ -69,107 +81,17 @@ def get_square_for_pos(grid: np.ndarray, pos: tuple[int, int]) -> np.ndarray:
 
 
 def unique_numbers(arr: np.ndarray) -> set[int]:
-    return set(arr.flatten())
+    return set(arr.flatten())  # todo - remove 0?
 
 
 ##
 
-def numbers_in_row(grid: np.ndarray, pos: tuple[int, int] | int) -> set[int]:
-    if isinstance(pos, int):
-        row_idx = pos
-    else:
-        row_idx = pos[0]
-    return set(grid[row_idx, :].flatten())  # todo - remove 0?
+# def get_row_for_pos2(grid: list[list], pos: tuple[int, int]) -> np.ndarray:
+#     return get_row(grid, pos[0])
 
 
-def numbers_in_col(grid: np.ndarray, pos: tuple[int, int] | int) -> set[int]:
-    if isinstance(pos, int):
-        col_idx = pos
-    else:
-        col_idx = pos[1]
-    return set(grid[:, col_idx].flatten())
-
-
-def indices_square_to_grid(square_row_idx: int, square_col_idx: int) -> tuple[tuple[int, int], tuple[int, int]]:
-    row_start = square_row_idx * 3
-    row_end = row_start + 3
-
-    col_start = square_col_idx * 3
-    col_end = col_start + 3
-
-    return (row_start, row_end), (col_start, col_end)
-
-
-def get_square_indices(pos: tuple[int, int]) -> tuple[tuple[int, int], tuple[int, int]]:
-    """
-            0       1       2
-          0 1 2 | 3 4 5 | 6 7 8
-       0
-     0 1            +           -> (1,4) -> (0,1) -> ((0,3), (3,6))
-       2
-       -
-       3
-     1 4
-       5
-       -
-       6
-     2 7
-       8
-
-    Args:
-        pos:
-
-    Returns:
-
-    """
-    square_row_idx = pos[0] // 3
-    square_col_idx = pos[1] // 3
-
-    return indices_square_to_grid(square_row_idx, square_col_idx)
-
-
-def get_square_indices_from_square_idx(square_idx: int) -> tuple[tuple[int, int], tuple[int, int]]:
-    square_row_idx = square_idx // 3
-    square_col_idx = square_idx % 3
-
-    return indices_square_to_grid(square_row_idx, square_col_idx)
-
-
-def get_square_from_idx(grid: np.ndarray, square_idx: int) -> np.ndarray:
-    """
-
-    Square indices:
-    +---+---+---+
-    | 0 | 1 | 2 |
-    +---+---+---+
-    | 3 | 4 | 5 |
-    +---+---+---+
-    | 6 | 7 | 8 |
-    +---+---+---+
-
-
-    Args:
-        grid:
-        square_idx:
-
-    Returns:
-
-    """
-    square_row_idx = square_idx // 3
-    square_col_idx = square_idx % 3
-
-
-def get_square(grid: np.ndarray, pos: tuple[int, int]) -> np.ndarray:
-    (row_start, row_end), (col_start, col_end) = get_square_indices(pos)
-    return grid[row_start:row_end, col_start: col_end]
-
-
-def numbers_in_square(grid: np.ndarray, pos: tuple[int, int]) -> set[int]:
-    return set(get_square(grid, pos).flatten())
-
-
-def get_square_helper(helper_grid: list[list[set]], position: tuple[int, int]) -> list[list[set]]:
-    (row_start, row_end), (col_start, col_end) = get_square_indices(position)
+def get_square_helper_grid(helper_grid: list[list[set]], pos: tuple[int, int]) -> list[list[set]]:
+    (row_start, row_end), (col_start, col_end) = square_idx_to_grid_indices(pos_to_square_idx(pos))
     square = []
     for r in range(row_start, row_end):
         row = helper_grid[r]
@@ -188,14 +110,18 @@ pprint(helper_grid)
 
 print(all_numbers())
 
-for pos in positions():
-    if grid[*pos] == 0:
-        possible_numbers = all_numbers() - numbers_in_row(grid, pos) - numbers_in_col(grid, pos) - numbers_in_square(
-            grid, pos)
-        helper_grid[pos[0]][pos[
-            1]] = possible_numbers  # todo - replace list in helper grid with set (and tuples) and modify the set here instead of assigning a new one
-    else:
-        helper_grid[pos[0]][pos[1]] = set()
+
+def fill_helper_grid(helper_grid: list[list[set]], grid: np.ndarray) -> None:
+    for pos in positions():
+        if grid[*pos] == 0:
+            possible_numbers = all_numbers() \
+                               - unique_numbers(get_row_for_pos(grid, pos)) \
+                               - unique_numbers(get_col_for_pos(grid, pos)) \
+                               - unique_numbers(get_square_for_pos(grid, pos))
+            helper_grid[pos[0]][pos[1]].update(possible_numbers)
+
+
+fill_helper_grid(helper_grid, grid)
 
 pprint(helper_grid)
 
@@ -210,7 +136,7 @@ def remove_possible_val(helper_grid: list[list[set]], position: tuple[int, int],
         possible_vals = row_[position[1]]
         possible_vals.discard(value)
     # remove from square
-    square_ = get_square_helper(helper_grid, position)
+    square_ = get_square_helper_grid(helper_grid, position)
     for row_ in square_:
         for possible_vals in row_:
             possible_vals.discard(value)
