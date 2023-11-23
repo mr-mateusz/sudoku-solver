@@ -3,6 +3,8 @@ from pprint import pprint
 
 import numpy as np
 
+from functions import get_row_for_pos, get_col_for_pos, get_square_for_pos, unique_numbers
+
 
 def read(path: str) -> np.ndarray:
     with open(path, 'r', encoding='utf8') as f:
@@ -29,74 +31,6 @@ def create_helper_grid() -> list[list[set]]:
 
 def all_numbers() -> set[int]:
     return set(range(1, 10))
-
-
-##
-
-def square_indices_to_grid_indices(square_row_idx: int, square_col_idx: int) \
-        -> tuple[tuple[int, int], tuple[int, int]]:
-    row_start = square_row_idx * 3
-    row_end = row_start + 3
-
-    col_start = square_col_idx * 3
-    col_end = col_start + 3
-
-    return (row_start, row_end), (col_start, col_end)
-
-
-def square_idx_to_grid_indices(square_idx: int) -> tuple[tuple[int, int], tuple[int, int]]:
-    square_row_idx = square_idx // 3
-    square_col_idx = square_idx % 3
-
-    return square_indices_to_grid_indices(square_row_idx, square_col_idx)
-
-
-def pos_to_square_idx(pos: tuple[int, int]) -> int:
-    return pos[0] // 3 * 3 + pos[1] // 3
-
-
-def get_row(grid: np.ndarray, row_idx: int) -> np.ndarray:
-    return grid[row_idx, :]
-
-
-def get_col(grid: np.ndarray, col_idx: int) -> np.ndarray:
-    return grid[:, col_idx]
-
-
-def get_square(grid: np.ndarray, square_idx: int) -> np.ndarray:
-    (row_start, row_end), (col_start, col_end) = square_idx_to_grid_indices(square_idx)
-    return grid[row_start: row_end, col_start: col_end]
-
-
-def get_row_for_pos(grid: np.ndarray, pos: tuple[int, int]) -> np.ndarray:
-    return get_row(grid, pos[0])
-
-
-def get_col_for_pos(grid: np.ndarray, pos: tuple[int, int]) -> np.ndarray:
-    return get_col(grid, pos[1])
-
-
-def get_square_for_pos(grid: np.ndarray, pos: tuple[int, int]) -> np.ndarray:
-    return get_square(grid, pos_to_square_idx(pos))
-
-
-def unique_numbers(arr: np.ndarray) -> set[int]:
-    return set(arr.flatten())  # todo - remove 0?
-
-
-##
-
-# def get_row_for_pos2(grid: list[list], pos: tuple[int, int]) -> np.ndarray:
-#     return get_row(grid, pos[0])
-
-
-def get_square_helper_grid(helper_grid: list[list[set]], pos: tuple[int, int]) -> list[list[set]]:
-    (row_start, row_end), (col_start, col_end) = square_idx_to_grid_indices(pos_to_square_idx(pos))
-    square = []
-    for r in range(row_start, row_end):
-        row = helper_grid[r]
-        square.append(row[col_start:col_end])
-    return square
 
 
 path = 'input.txt'
@@ -126,17 +60,18 @@ fill_helper_grid(helper_grid, grid)
 pprint(helper_grid)
 
 
-def remove_possible_val(helper_grid: list[list[set]], position: tuple[int, int], value: int) -> None:
+def remove_possible_val(helper_grid: list[list[set]], pos: tuple[int, int], value: int) -> None:
+    # Todo refactor after writing unit tests
     # remove from row
-    row_ = helper_grid[position[0]]
+    row_ = helper_grid[pos[0]]
     for possible_vals in row_:
         possible_vals.discard(value)
     # remove from column
     for row_ in helper_grid:
-        possible_vals = row_[position[1]]
+        possible_vals = row_[pos[1]]
         possible_vals.discard(value)
     # remove from square
-    square_ = get_square_helper_grid(helper_grid, position)
+    square_ = get_square_for_pos(helper_grid, pos)
     for row_ in square_:
         for possible_vals in row_:
             possible_vals.discard(value)
