@@ -2,7 +2,8 @@ import numpy as np
 import pytest
 
 from functions import square_indices_to_grid_indices, square_idx_to_grid_indices, pos_to_square_idx, __get_row_list, \
-    __get_col_list, __get_square_list, __get_row_arr, __get_col_arr, __get_square_arr, get_row
+    __get_col_list, __get_square_list, __get_row_arr, __get_col_arr, __get_square_arr, get_row, get_col, get_square, \
+    get_row_for_pos, get_col_for_pos, get_square_for_pos, get_unique_numbers
 
 
 @pytest.mark.parametrize('inputs,outputs', [
@@ -123,12 +124,77 @@ def test___get_square_arr(random_matrix, square_idx, list_indices):
     assert np.array_equal(square, result)
 
 
+@pytest.mark.parametrize('row_idx', [0, 5, 7])
+def test_get_row(random_matrix, random_nested_list, row_idx):
+    assert get_row(random_nested_list, row_idx) == random_nested_list[row_idx]
+    assert np.array_equal(get_row(random_matrix, row_idx), random_matrix[row_idx])
 
-# TODO
-# @pytest.mark.parametrize('position', [
-#     (0, 1),
-#     (5, 8),
-#     (7, 4),
-# ])
-# def test_get_row(random_matrix, random_nested_list, position):
-#     assert get_row(random_matrix, )
+
+@pytest.mark.parametrize('col_idx', [0, 5, 7])
+def test_get_col(random_matrix, random_nested_list, col_idx):
+    assert get_col(random_nested_list, col_idx) == [row[col_idx] for row in random_nested_list]
+    assert np.array_equal(get_col(random_matrix, col_idx), random_matrix[:, col_idx])
+
+
+@pytest.mark.parametrize('square_idx,list_indices', [
+    (0, ((0, 3), (0, 3))),
+    (5, ((3, 6), (6, 9))),
+    (7, ((6, 9), (3, 6))),
+])
+def test_get_square(random_matrix, random_nested_list, square_idx, list_indices):
+    square = [row[list_indices[1][0]:list_indices[1][1]] for row in
+              random_nested_list[list_indices[0][0]:list_indices[0][1]]]
+    assert get_square(random_nested_list, square_idx) == square
+
+    arr1 = get_square(random_matrix, square_idx)
+    arr2 = random_matrix[list_indices[0][0]:list_indices[0][1], list_indices[1][0]:list_indices[1][1]]
+    assert np.array_equal(arr1, arr2)
+
+
+@pytest.mark.parametrize('position', [
+    (0, 1),
+    (5, 8),
+    (7, 4),
+])
+def test_get_row_for_pos(random_matrix, random_nested_list, position: tuple[int, int]):
+    assert get_row_for_pos(random_nested_list, position) == random_nested_list[position[0]]
+    assert np.array_equal(get_row_for_pos(random_matrix, position), random_matrix[position[0]])
+
+
+@pytest.mark.parametrize('position', [
+    (0, 1),
+    (5, 8),
+    (7, 4),
+])
+def test_get_col_for_pos(random_matrix, random_nested_list, position: tuple[int, int]):
+    assert get_col_for_pos(random_nested_list, position) == [row[position[1]] for row in random_nested_list]
+    assert np.array_equal(get_col_for_pos(random_matrix, position), random_matrix[:, position[1]])
+
+
+@pytest.mark.parametrize('position,list_indices', [
+    ((0, 1), ((0, 3), (0, 3))),
+    ((5, 8), ((3, 6), (6, 9))),
+    ((7, 4), ((6, 9), (3, 6))),
+])
+def test_get_square_for_pos(random_matrix, random_nested_list, position: tuple[int, int], list_indices):
+    square = [row[list_indices[1][0]:list_indices[1][1]] for row in
+              random_nested_list[list_indices[0][0]:list_indices[0][1]]]
+    assert get_square_for_pos(random_nested_list, position) == square
+
+    arr1 = get_square_for_pos(random_matrix, position)
+    arr2 = random_matrix[list_indices[0][0]:list_indices[0][1], list_indices[1][0]:list_indices[1][1]]
+    assert np.array_equal(arr1, arr2)
+
+
+@pytest.mark.parametrize('inputs,outputs,flag', [
+    (np.array([0, 0, 0]), {0}, False),
+    (np.array([0, 0, 0]), set(), True),
+    (np.array([0, 2, 2, 4]), {0, 2, 4}, False),
+    (np.array([0, 2, 2, 4]), {2, 4}, True),
+])
+def test_get_unique_numbers(inputs, outputs, flag):
+    assert get_unique_numbers(inputs, flag) == outputs
+
+    # test if default value changed
+    if flag:
+        assert get_unique_numbers(inputs) == outputs

@@ -79,7 +79,7 @@ def get_square_for_pos(grid: T, pos: tuple[int, int]) -> T:
     return get_square(grid, pos_to_square_idx(pos))
 
 
-def unique_numbers(arr: np.ndarray, remove_0: bool = True) -> set[int]:
+def get_unique_numbers(arr: np.ndarray, remove_0: bool = True) -> set[int]:
     unique = set(arr.flatten())
     if remove_0:
         unique.discard(0)

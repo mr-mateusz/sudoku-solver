@@ -3,7 +3,7 @@ from pprint import pprint
 
 import numpy as np
 
-from functions import get_row_for_pos, get_col_for_pos, get_square_for_pos, unique_numbers
+from functions import get_row_for_pos, get_col_for_pos, get_square_for_pos, get_unique_numbers
 
 
 def read(path: str) -> np.ndarray:
@@ -49,9 +49,9 @@ def fill_helper_grid(helper_grid: list[list[set]], grid: np.ndarray) -> None:
     for pos in positions():
         if grid[*pos] == 0:
             possible_numbers = all_numbers() \
-                               - unique_numbers(get_row_for_pos(grid, pos)) \
-                               - unique_numbers(get_col_for_pos(grid, pos)) \
-                               - unique_numbers(get_square_for_pos(grid, pos))
+                               - get_unique_numbers(get_row_for_pos(grid, pos)) \
+                               - get_unique_numbers(get_col_for_pos(grid, pos)) \
+                               - get_unique_numbers(get_square_for_pos(grid, pos))
             helper_grid[pos[0]][pos[1]].update(possible_numbers)
 
 
