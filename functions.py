@@ -1,3 +1,4 @@
+from collections.abc import Iterable
 from typing import TypeVar
 
 import numpy as np
@@ -64,6 +65,22 @@ def get_col(grid: T, col_idx: int) -> T:
 
 
 def get_square(grid: T, square_idx: int) -> T:
+    """
+    +- - -+- - -+- - -+
+    |  0  |  1  |  2  |
+    +- - -+- - -+- - -+
+    |  3  |  4  |  5  |
+    +- - -+- - -+- - -+
+    |  6  |  7  |  8  |
+    +- - -+- - -+- - -+
+
+    Args:
+        grid:
+        square_idx:
+
+    Returns:
+
+    """
     return __get_square_list(grid, square_idx) if isinstance(grid, list) else __get_square_arr(grid, square_idx)
 
 
@@ -84,3 +101,50 @@ def get_unique_numbers(arr: np.ndarray, remove_0: bool = True) -> set[int]:
     if remove_0:
         unique.discard(0)
     return unique
+
+
+def positions() -> Iterable[tuple[int, int]]:
+    for x in range(9):
+        for y in range(9):
+            yield x, y
+
+
+def create_helper_grid() -> list[list[set]]:
+    grid = []
+    for _ in range(9):
+        row = []
+        for _ in range(9):
+            row.append(set())
+        grid.append(row)
+    return grid
+
+
+def all_numbers() -> set[int]:
+    return set(range(1, 10))
+
+
+def fill_helper_grid(helper_grid: list[list[set]], grid: np.ndarray) -> None:
+    for pos in positions():
+        if grid[*pos] == 0:
+            possible_numbers = all_numbers() \
+                               - get_unique_numbers(get_row_for_pos(grid, pos)) \
+                               - get_unique_numbers(get_col_for_pos(grid, pos)) \
+                               - get_unique_numbers(get_square_for_pos(grid, pos))
+            helper_grid[pos[0]][pos[1]].update(possible_numbers)
+
+
+def remove_possible_val(helper_grid: list[list[set]], pos: tuple[int, int], value: int) -> None:
+    # Todo refactor after writing unit tests
+    # remove from row
+    row_ = helper_grid[pos[0]]
+    for possible_vals in row_:
+        possible_vals.discard(value)
+    # remove from column
+    for row_ in helper_grid:
+        possible_vals = row_[pos[1]]
+        possible_vals.discard(value)
+    # remove from square
+    square_ = get_square_for_pos(helper_grid, pos)
+    for row_ in square_:
+        for possible_vals in row_:
+            possible_vals.discard(value)
