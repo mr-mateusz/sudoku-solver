@@ -1,3 +1,4 @@
+from collections import defaultdict
 from collections.abc import Iterable, Sequence
 from typing import TypeVar
 
@@ -171,7 +172,7 @@ def remove_possible_value(helper_grid: list[list[set]], pos: tuple[int, int], va
 
 def find_positions_with_single_possible_value(seq: Sequence[set]) -> list[int]:
     """
-    In the sequence find positions where only one value can be put.
+    In the sequence (row/column/square) find positions where only one value can be put.
 
     Args:
         seq:
@@ -185,10 +186,28 @@ def find_positions_with_single_possible_value(seq: Sequence[set]) -> list[int]:
             found.append(index)
     return found
 
+
+# todo - do we need to return indices? - could be useful in future for visualisation
+def find_pairs(seq: Sequence[set]) -> list[tuple[tuple[int, int], int, int]]:
+    pair_occurrences = defaultdict(list)
+    for index, possible_values in enumerate(seq):
+        # 2 possible values in a position
+        if len(possible_values) == 2:
+            pair_occurrences[tuple(sorted(possible_values))].append(index)
+
+    result = []
+    for pos_vals, positions in pair_occurrences.items():
+        # Pair has to occur exactly twice
+        if len(positions) == 2:
+            result.append((pos_vals, positions[0], positions[1]))
+
+    return result
+
+
 # todo think about better func name
 def find_places_in_sequence_for_values(seq: Sequence[set], values: Iterable[int]) -> list[tuple[int, int]]:
     """
-    Find numbers which can be placed in only one position in the seq.
+    Find numbers which can be placed in only one position in the sequence (row/column/square).
 
     Argument seq contains sequence of sets that indicates what value can be placed in each position.
     From the iterable of values find ones which can be placed in only one position in the seq.

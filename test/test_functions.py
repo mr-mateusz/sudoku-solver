@@ -7,7 +7,7 @@ from src.functions import square_indices_to_grid_indices, square_idx_to_grid_ind
     __get_col_list, __get_square_list, __get_row_arr, __get_col_arr, __get_square_arr, get_row, get_col, get_square, \
     get_row_for_pos, get_col_for_pos, get_square_for_pos, get_unique_numbers, fill_helper_grid, create_helper_grid, \
     remove_possible_value, square_and_position_indices_to_absolute_position, find_places_in_sequence_for_values, \
-    find_positions_with_single_possible_value
+    find_positions_with_single_possible_value, find_pairs
 from test.resources.fill_helper_grid_example_01 import example_helper_grid_01, example_grid_01
 from test.resources.remove_possible_value_examples import before01, after01_1, val01_1, pos01_1, pos01_2, val01_2, \
     after01_2, after02_1, val02_1, pos02_1, before02
@@ -250,6 +250,20 @@ def test_remove_possible_value(before, pos, val, after):
 ])
 def test_find_positions_with_single_possible_value(sequence, result):
     assert result == find_positions_with_single_possible_value(sequence)
+
+
+@pytest.mark.parametrize('sequence,result', [
+    ([set(), set(), set(), set(), set(), set(), set(), set(), set()], []),
+    ([{1, 2, 3}, {3}, set(), set(), set(), {8, 9}, set(), set(), {3, 4}], []),
+    ([{1}, {2}, {3}, {4}, {5}, [6], {7}, {8}, {9}], []),
+    ([{1, 2}, {1, 3}, {1, 4}, {1, 5}, {1, 6}, {1, 7}, {1, 8}, {1, 9}, {2, 3}], []),
+    ([{1, 2}, {1, 3}, {1, 2}, {1, 2, 3}, {1}, {1, 6, 8}, {1, 6, 7, 8}, {1, 6}, {2, 3}],
+     [((1, 2), 0, 2)]),
+    ([{1, 2}, {1, 3}, {1, 2}, {1, 2, 3}, {1, 6, 7}, {1, 6}, {1, 6, 7, 8}, {1, 6}, {2, 3}],
+     [((1, 2), 0, 2), ((1, 6), 5, 7)]),
+])
+def test_find_pairs(sequence, result):
+    assert result == find_pairs(sequence)
 
 
 @pytest.mark.parametrize('sequence,values,result', [
