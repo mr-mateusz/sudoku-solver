@@ -1,4 +1,4 @@
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from typing import TypeVar
 
 import numpy as np
@@ -167,3 +167,30 @@ def remove_possible_value(helper_grid: list[list[set]], pos: tuple[int, int], va
     __remove_from_row(helper_grid, pos[0], value)
     __remove_from_col(helper_grid, pos[1], value)
     __remove_from_square(helper_grid, pos_to_square_idx(pos), value)
+
+
+# todo think about better func name
+def find_places_in_sequence_for_values(seq: Sequence[set], values: Iterable[int]) -> list[tuple[int, int]]:
+    """
+    Find numbers which can be placed in only one position in the seq.
+
+    Argument seq contains sequence of sets that indicates what value can be placed in each position.
+    From the iterable of values find ones which can be placed in only one position in the seq.
+    Returns list of values that can be placed in only one position in format: (index in seq, value)
+
+    Args:
+        seq:
+        values:
+
+    Returns:
+        [(index, value), ...]
+    """
+    found_places = []
+    for val in values:
+        possible_places = []
+        for index, possible_values in enumerate(seq):
+            if val in possible_values:
+                possible_places.append(index)
+        if len(possible_places) == 1:
+            found_places.append((possible_places[0], val))
+    return found_places

@@ -6,7 +6,7 @@ import pytest
 from src.functions import square_indices_to_grid_indices, square_idx_to_grid_indices, pos_to_square_idx, __get_row_list, \
     __get_col_list, __get_square_list, __get_row_arr, __get_col_arr, __get_square_arr, get_row, get_col, get_square, \
     get_row_for_pos, get_col_for_pos, get_square_for_pos, get_unique_numbers, fill_helper_grid, create_helper_grid, \
-    remove_possible_value, square_and_position_indices_to_absolute_position
+    remove_possible_value, square_and_position_indices_to_absolute_position, find_places_in_sequence_for_values
 from test.resources.fill_helper_grid_example_01 import example_helper_grid_01, example_grid_01
 from test.resources.remove_possible_value_examples import before01, after01_1, val01_1, pos01_1, pos01_2, val01_2, \
     after01_2, after02_1, val02_1, pos02_1, before02
@@ -239,3 +239,13 @@ def test_remove_possible_value(before, pos, val, after):
     before = copy.deepcopy(before)
     remove_possible_value(before, pos, val)
     assert before == after
+
+
+@pytest.mark.parametrize('sequence,values,result', [
+    ([set(), set(), set(), set(), set(), set(), set(), set(), set()], [1, 2, 3], []),
+    ([{1, 2, 3}, {1, 4}, {1}, {3, 4, 6}, {5}, {1}, {5}, {9}, {}], [1, 2, 3], [(0, 2)]),
+    ([{1, 2, 3}, {1, 4}, {1}, {3, 4, 6}, {5}, {1}, {5}, {9}, {}], [1, 2, 3, 4, 5, 6, 9], [(0, 2), (3, 6), (7, 9)]),
+    ([{1, 2, 3}, {4}, {1, 2, 3, 4, 5, 6, 7, 8, 9}, {3, 4, 6}, {5}, {1}, {5}, {9}, {3, 4, 5, 6, 8, 9}], [7], [(2, 7)]),
+])
+def test_find_places_in_sequence_for_values(sequence, values, result):
+    assert result == find_places_in_sequence_for_values(sequence, values)
