@@ -187,21 +187,29 @@ def find_positions_with_single_possible_value(seq: Sequence[set]) -> list[int]:
     return found
 
 
-# todo - do we need to return indices? - could be useful in future for visualisation
-def find_pairs(seq: Sequence[set]) -> list[tuple[tuple[int, int], int, int]]:
+def find_n_equal_subsets_of_n_elements(seq: Sequence[set], n: int) -> list[tuple[tuple[int, int], tuple[int, ...]]]:
     pair_occurrences = defaultdict(list)
     for index, possible_values in enumerate(seq):
-        # 2 possible values in a position
-        if len(possible_values) == 2:
+        # n possible values in a position
+        if len(possible_values) == n:
             pair_occurrences[tuple(sorted(possible_values))].append(index)
 
     result = []
     for pos_vals, positions in pair_occurrences.items():
-        # Pair has to occur exactly twice
-        if len(positions) == 2:
-            result.append((pos_vals, positions[0], positions[1]))
+        # Pair has to occur exactly n times
+        if len(positions) == n:
+            result.append((pos_vals, tuple(positions)))
 
     return result
+
+
+# todo - do we need to return indices? - could be useful in future for visualisation
+def find_pairs(seq: Sequence[set]) -> list[tuple[tuple[int, int], tuple[int, int]]]:
+    return find_n_equal_subsets_of_n_elements(seq, 2)
+
+
+def find_triplets(seq: Sequence[set]) -> list[tuple[tuple[int, int, int], tuple[int, int, int]]]:
+    return find_n_equal_subsets_of_n_elements(seq, 3)
 
 
 # todo think about better func name
