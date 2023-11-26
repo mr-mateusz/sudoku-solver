@@ -169,6 +169,22 @@ def remove_possible_value(helper_grid: list[list[set]], pos: tuple[int, int], va
     __remove_from_square(helper_grid, pos_to_square_idx(pos), value)
 
 
+def find_positions_with_single_possible_value(seq: Sequence[set]) -> list[int]:
+    """
+    In the sequence find positions where only one value can be put.
+
+    Args:
+        seq:
+
+    Returns:
+
+    """
+    found = []
+    for index, possible_values in enumerate(seq):
+        if len(possible_values) == 1:
+            found.append(index)
+    return found
+
 # todo think about better func name
 def find_places_in_sequence_for_values(seq: Sequence[set], values: Iterable[int]) -> list[tuple[int, int]]:
     """
