@@ -6,7 +6,7 @@ import pytest
 from src.functions import square_indices_to_grid_indices, square_idx_to_grid_indices, pos_to_square_idx, __get_row_list, \
     __get_col_list, __get_square_list, __get_row_arr, __get_col_arr, __get_square_arr, get_row, get_col, get_square, \
     get_row_for_pos, get_col_for_pos, get_square_for_pos, get_unique_numbers, fill_helper_grid, create_helper_grid, \
-    remove_possible_value
+    remove_possible_value, square_and_position_indices_to_absolute_position
 from test.resources.fill_helper_grid_example_01 import example_helper_grid_01, example_grid_01
 from test.resources.remove_possible_value_examples import before01, after01_1, val01_1, pos01_1, pos01_2, val01_2, \
     after01_2, after02_1, val02_1, pos02_1, before02
@@ -40,6 +40,19 @@ def test_square_indices_to_grid_indices(inputs, outputs):
 ])
 def test_square_idx_to_grid_indices(inputs, outputs):
     assert square_idx_to_grid_indices(inputs) == outputs
+
+
+@pytest.mark.parametrize('square_idx,position_idx,position', [
+    (0, 0, (0, 0)),
+    (8, 8, (8, 8)),
+    (0, 8, (2, 2)),
+    (2, 3, (1, 6)),
+    (4, 2, (3, 5)),
+    (6, 5, (7, 2)),
+    (7, 1, (6, 4)),
+])
+def test_square_and_position_indices_to_absolute_position(square_idx, position_idx, position):
+    assert position == square_and_position_indices_to_absolute_position(square_idx, position_idx)
 
 
 @pytest.mark.parametrize('inputs,outputs', [

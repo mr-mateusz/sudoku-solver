@@ -22,6 +22,15 @@ def square_idx_to_grid_indices(square_idx: int) -> tuple[tuple[int, int], tuple[
     return square_indices_to_grid_indices(square_row_idx, square_col_idx)
 
 
+def square_and_position_indices_to_absolute_position(square_idx: int, position_idx: int) -> tuple[int, int]:
+    (row_start, _), (col_start, _) = square_idx_to_grid_indices(square_idx)
+
+    row_offset = position_idx // 3
+    col_offset = position_idx % 3
+
+    return row_start + row_offset, col_start + col_offset
+
+
 def pos_to_square_idx(pos: tuple[int, int]) -> int:
     return pos[0] // 3 * 3 + pos[1] // 3
 
