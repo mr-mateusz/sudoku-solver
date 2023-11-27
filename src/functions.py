@@ -164,7 +164,6 @@ def __remove_from_square(helper_grid: list[list[set]], square_idx: int, value: i
 
 
 def remove_possible_value(helper_grid: list[list[set]], pos: tuple[int, int], value: int) -> None:
-    # Todo refactor after writing unit tests
     __remove_from_row(helper_grid, pos[0], value)
     __remove_from_col(helper_grid, pos[1], value)
     __remove_from_square(helper_grid, pos_to_square_idx(pos), value)
@@ -172,13 +171,14 @@ def remove_possible_value(helper_grid: list[list[set]], pos: tuple[int, int], va
 
 def find_positions_with_single_possible_value(seq: Sequence[set]) -> list[int]:
     """
-    In the sequence (row/column/square) find positions where only one value can be put.
+    In the sequence (row/column/square) find positions where only one value can be put
+    (there is only one value in a set of possible values).
 
     Args:
         seq:
 
     Returns:
-
+        list of indexes at which only one value can be put
     """
     found = []
     for index, possible_values in enumerate(seq):
@@ -187,7 +187,7 @@ def find_positions_with_single_possible_value(seq: Sequence[set]) -> list[int]:
     return found
 
 
-def find_n_equal_subsets_of_n_elements(seq: Sequence[set], n: int) -> list[tuple[tuple[int, int], tuple[int, ...]]]:
+def __find_n_equal_subsets_of_n_elements(seq: Sequence[set], n: int) -> list[tuple[tuple[int, int], tuple[int, ...]]]:
     pair_occurrences = defaultdict(list)
     for index, possible_values in enumerate(seq):
         # n possible values in a position
@@ -203,30 +203,80 @@ def find_n_equal_subsets_of_n_elements(seq: Sequence[set], n: int) -> list[tuple
     return result
 
 
-# todo - do we need to return indices? - could be useful in future for visualisation
 def find_pairs(seq: Sequence[set]) -> list[tuple[tuple[int, int], tuple[int, int]]]:
-    return find_n_equal_subsets_of_n_elements(seq, 2)
+    """
+    In the sequence (row/column/square) find pairs (exactly the same 2 and only 2 possible values for 2 positions).
+
+    Args:
+        seq:
+
+    Returns:
+        [((elem1, elem2), index1, index2), ...]
+    """
+    return __find_n_equal_subsets_of_n_elements(seq, 2)
 
 
 def find_triplets(seq: Sequence[set]) -> list[tuple[tuple[int, int, int], tuple[int, int, int]]]:
-    return find_n_equal_subsets_of_n_elements(seq, 3)
+    """
+    In the sequence (row/column/square) find triplets (exactly the same 3 and only 3 possible values for 3 positions).
+
+    Args:
+        seq:
+
+    Returns:
+        [((elem1, elem2, elem3), index1, index2, index3), ...]
+    """
+    return __find_n_equal_subsets_of_n_elements(seq, 3)
 
 
-# todo think about better func name
+def find_pair_subset(seq: Sequence[set]) -> list[tuple[tuple[int, int], int, int]]:
+    """
+    In the sequence:
+    1. Find all positions that have 2 possible values
+    2. From found positions (and possible values) take the ones that fulfill the following requirements:
+        - ## TODO
+
+    Args:
+        seq:
+
+    Returns:
+
+    """
+    possible_vals_2_elem = [(index, s) for index, s in enumerate(seq) if len(s) == 2]
+
+    result = []
+    for index, pair in possible_vals_2_elem:
+        num1, num2 = sorted(pair)
+        num1_in = []
+        num2_in = []
+        for other_index, other in enumerate(seq):
+            if index == other_index:
+                continue
+            if num1 in other:
+                num1_in.append(other_index)
+            if num2 in other:
+                num2_in.append(other_index)
+
+        if len(num1_in) == 1 and len(num2_in) == 1 and num1_in[0] == num2_in[0]:
+            result.append(((num1, num2), index, num1_in[0]))
+    return result
+
+
 def find_places_in_sequence_for_values(seq: Sequence[set], values: Iterable[int]) -> list[tuple[int, int]]:
     """
     Find numbers which can be placed in only one position in the sequence (row/column/square).
 
-    Argument seq contains sequence of sets that indicates what value can be placed in each position.
-    From the iterable of values find ones which can be placed in only one position in the seq.
-    Returns list of values that can be placed in only one position in format: (index in seq, value)
+    Argument seq contains sequence of sets that indicates which values can be placed in each position.
+    From the iterable of values find ones which can be placed in only one position in the seq
+    (it means that there is only one position where this value can be put).
+
 
     Args:
         seq:
         values:
 
     Returns:
-        [(index, value), ...]
+        list of values that can be placed in only one position in format: [(index_in_seq, value), ...]
     """
     found_places = []
     for val in values:
