@@ -1,9 +1,12 @@
+import itertools
 from pprint import pprint
 
 import numpy as np
 
 from src.functions import create_helper_grid, all_numbers, fill_helper_grid, remove_possible_value, get_unique_numbers, \
-    get_row
+    get_row, get_col, get_square, square_and_position_indices_to_absolute_position, \
+    find_places_in_sequence_for_values, find_positions_with_single_possible_value, find_pairs, find_triplets, \
+    find_pair_subset
 
 
 def read(path: str) -> np.ndarray:
@@ -13,7 +16,7 @@ def read(path: str) -> np.ndarray:
     return np.array(lines)
 
 
-path = '../input.txt'
+path = 'input.txt'
 
 grid = read(path)
 print(grid)
@@ -24,39 +27,61 @@ fill_helper_grid(helper_grid, grid)
 
 pprint(helper_grid)
 
+
 for row_idx in range(9):
-    # Find fields with single possible value
+    print(row_idx)
+
+    row_possible_vals = get_row(helper_grid, row_idx)
+
+    # Find pos with single possible value
+    positions = find_positions_with_single_possible_value(row_possible_vals)
     # Find pairs
-    # Find triples
+    pairs = find_pairs(row_possible_vals)
+    # Find triplets
+    triplets = find_triplets(row_possible_vals)
     # Find pair subsets
+    subsets = find_pair_subset(row_possible_vals)
 
     # Find numbers which can be placed in only one position
     missing = all_numbers() - get_unique_numbers(get_row(grid, row_idx))
-    for m in missing:
-        possible_places = []
-        for col_idx, possible_values in enumerate(get_row(helper_grid, row_idx)):
-            if m in possible_values:
-                possible_places.append((row_idx, col_idx))
-        print(m, possible_places)
-        if len(possible_places) == 1:
-            position = possible_places[0]
-            grid[*position] = m
+    # row_possible_vals = get_row(helper_grid, row_idx)
 
-            # update grid
-            remove_possible_value(helper_grid, position, m)
-
-            # todo - break after update?
-
-            pprint(grid)
-            pprint(helper_grid)
-
-        # (optional) add positions where updated to possible places to check
+    found_places = find_places_in_sequence_for_values(row_possible_vals, missing)
+    print(found_places)
+    for index, value in found_places:
+        position = (row_idx, index)
+        grid[*position] = value
+        remove_possible_value(helper_grid, position, value)
 
 # for col_idx ....
+for col_idx in range(9):
+    print(col_idx)
+
+    missing = all_numbers() - get_unique_numbers(get_col(grid, col_idx))
+    col_possible_vals = get_col(helper_grid, col_idx)
+
+    found_places = find_places_in_sequence_for_values(col_possible_vals, missing)
+    print(found_places)
+    for index, value in found_places:
+        position = (index, col_idx)
+        grid[*position] = value
+        remove_possible_value(helper_grid, position, value)
 
 # for square_idx ...
+for square_idx in range(9):
+    print(square_idx)
 
-# find fields with single possible value
-# find pairs
-# find triples
-# find pair subsets
+    missing = all_numbers() - get_unique_numbers(get_square(grid, square_idx))
+    square_possible_vals = list(itertools.chain(*get_square(helper_grid, square_idx)))
+
+    found_places = find_places_in_sequence_for_values(square_possible_vals, missing)
+    print(found_places)
+    for index, value in found_places:
+        position = square_and_position_indices_to_absolute_position(square_idx, index)
+        grid[*position] = value
+        remove_possible_value(helper_grid, position, value)
+
+# todo
+#   - place value function (add to grid and update helper grid)
+#   - remove possible vals based on pair, triplet
+#   - remove possible vals based on subset

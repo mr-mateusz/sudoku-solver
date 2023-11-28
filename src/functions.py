@@ -233,14 +233,16 @@ def find_pair_subset(seq: Sequence[set]) -> list[tuple[tuple[int, int], int, int
     """
     In the sequence:
     1. Find all positions that have 2 possible values
-    2. From found positions (and possible values) take the ones that fulfill the following requirements:
-        - ## TODO
-
+    2. From found positions (and possible values) take the ones that fulfill the following requirement:
+        - both of the numbers from this position occur in one different position (but this position
+          can contain different possible values as well)
+        - none of the numbers occur in any different position
     Args:
         seq:
 
     Returns:
-
+        List of found pair subsets in the following form:
+        [((number1, number2), pair position, position with pair as subset), ...]
     """
     possible_vals_2_elem = [(index, s) for index, s in enumerate(seq) if len(s) == 2]
 
