@@ -28,6 +28,30 @@ fill_helper_grid(helper_grid, grid)
 pprint(helper_grid)
 
 
+def place_value(grid: np.ndarray, helper_grid: list[list[set]], position: tuple[int, int], value: int) -> None:
+    if grid[*position] != 0:
+        raise ValueError(f'Position {position} not empty')
+
+    grid[*position] = value
+    remove_possible_value(helper_grid, position, value)
+
+
+def remove_pairs():
+    pass
+
+
+def remove_triplets():
+    pass
+
+
+def remove_pair_subset():
+    pass
+
+
+def place_values():
+    pass
+
+
 for row_idx in range(9):
     print(row_idx)
 
