@@ -28,11 +28,17 @@ fill_helper_grid(helper_grid, grid)
 pprint(helper_grid)
 
 
+def clear_possible_values(helper_grid: list[list[set]], position: tuple[int, int]) -> None:
+    helper_grid[position[0]][position[1]].clear()
+
+
 def place_value(grid: np.ndarray, helper_grid: list[list[set]], position: tuple[int, int], value: int) -> None:
     if grid[*position] != 0:
         raise ValueError(f'Position {position} not empty')
 
     grid[*position] = value
+    clear_possible_values(helper_grid, position)
+    # todo - find a better name for this function
     remove_possible_value(helper_grid, position, value)
 
 
